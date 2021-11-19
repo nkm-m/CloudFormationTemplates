@@ -1,0 +1,81 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Create Billing Alarm",
+  "Parameters": {
+    "EmailAddress": {
+      "Description": "Enter your EmailAddress",
+      "Type": "String"
+    },
+    "Threshold": {
+      "Description": "Enter Threshold",
+      "Type": "Number",
+      "Default": 10
+    }
+  },
+  "Resources": {
+    "CloudWatchAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmName": "BillingAlarm",
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "SNSTopic"
+          }
+        ],
+        "MetricName": "EstimatedCharges",
+        "Namespace": "AWS/Billing",
+        "Statistic": "Maximum",
+        "Dimensions": [
+          {
+            "Name": "Currency",
+            "Value": "USD"
+          }
+        ],
+        "Period": 21600,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": {
+          "Ref": "Threshold"
+        },
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "missing"
+      }
+    },
+    "SNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "",
+        "TopicName": "Default_CloudWatch_Alarms_Topic"
+      }
+    },
+    "SNSTopicPolicy": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Fn::Sub": "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\",\"SNS:Receive\"],\"Resource\":\"${SNSTopic}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}}]}"
+        },
+        "Topics": [
+          {
+            "Ref": "SNSTopic"
+          }
+        ]
+      }
+    },
+    "SNSSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "TopicArn": {
+          "Ref": "SNSTopic"
+        },
+        "Endpoint": {
+          "Ref": "EmailAddress"
+        },
+        "Protocol": "email",
+        "Region": {
+          "Ref": "AWS::Region"
+        }
+      }
+    }
+  }
+}

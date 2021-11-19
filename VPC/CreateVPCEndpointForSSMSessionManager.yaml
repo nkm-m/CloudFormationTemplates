@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create VPC Endpoint for SSM Session Manager"
+Resources:
+  EC2VPCEndpoint:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      VpcEndpointType: "Interface"
+      VpcId: "<vpc-id>"
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      PolicyDocument: |
+        {
+          "Statement": [
+            {
+              "Action": "*", 
+              "Effect": "Allow", 
+              "Principal": "*", 
+              "Resource": "*"
+            }
+          ]
+        }
+      SubnetIds:
+        - "<subnet-id>"
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - "<sg-id>"
+
+  EC2VPCEndpoint2:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      VpcEndpointType: "Interface"
+      VpcId: "<vpc-id>"
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      PolicyDocument: |
+        {
+          "Statement": [
+            {
+              "Action": "*", 
+              "Effect": "Allow", 
+              "Principal": "*", 
+              "Resource": "*"
+            }
+          ]
+        }
+      SubnetIds:
+        - "<subnet-id>"
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - "<sg-id>"
+
+  EC2VPCEndpoint3:
+    Type: "AWS::EC2::VPCEndpoint"
+    Properties:
+      VpcEndpointType: "Interface"
+      VpcId: "<vpc-id>"
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ec2messages"
+      PolicyDocument: |
+        {
+          "Statement": [
+            {
+              "Action": "*", 
+              "Effect": "Allow", 
+              "Principal": "*", 
+              "Resource": "*"
+            }
+          ]
+        }
+      SubnetIds:
+        - "<subnet-id>"
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - "<sg-id>"

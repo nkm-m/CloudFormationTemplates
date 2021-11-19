@@ -1,0 +1,177 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Create MultiAccount Billing Alarm",
+  "Parameters": {
+    "Threshold1": {
+      "Description": "Enter Threshold",
+      "Type": "Number",
+      "Default": 10
+    },
+    "LinkedAccount1": {
+      "Description": "Enter LinkedAccount1",
+      "Type": "String"
+    },
+    "Threshold2": {
+      "Description": "Enter Threshold",
+      "Type": "Number",
+      "Default": 10
+    },
+    "LinkedAccount2": {
+      "Description": "Enter LinkedAccount2",
+      "Type": "String"
+    },
+    "Threshold3": {
+      "Description": "Enter Threshold",
+      "Type": "Number",
+      "Default": 10
+    },
+    "LinkedAccount3": {
+      "Description": "Enter LinkedAccount3",
+      "Type": "String"
+    },
+    "SnsTopicArn": {
+      "Description": "Enter your SNS Topic ARN",
+      "Type": "String"
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [
+        {
+          "Label": {
+            "default": "Account A"
+          },
+          "Parameters": ["LinkedAccount1", "Threshold1"]
+        },
+        {
+          "Label": {
+            "default": "Account B"
+          },
+          "Parameters": ["LinkedAccount2", "Threshold2"]
+        },
+        {
+          "Label": {
+            "default": "Account C"
+          },
+          "Parameters": ["LinkedAccount3", "Threshold3"]
+        },
+        {
+          "Label": {
+            "default": "SNS Topic Arn"
+          },
+          "Parameters": ["SnsTopicArn"]
+        }
+      ]
+    }
+  },
+  "Resources": {
+    "CloudWatchAlarm1": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmName": "BillingAlarm1",
+        "AlarmDescription": "アカウントAの料金アラーム",
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "SnsTopicArn"
+          }
+        ],
+        "MetricName": "EstimatedCharges",
+        "Namespace": "AWS/Billing",
+        "Statistic": "Maximum",
+        "Dimensions": [
+          {
+            "Name": "Currency",
+            "Value": "USD"
+          },
+          {
+            "Name": "LinkedAccount",
+            "Value": {
+              "Ref": "LinkedAccount1"
+            }
+          }
+        ],
+        "Period": 21600,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": {
+          "Ref": "Threshold1"
+        },
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "missing"
+      }
+    },
+    "CloudWatchAlarm2": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmName": "BillingAlarm2",
+        "AlarmDescription": "アカウントBの料金アラーム",
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "SnsTopicArn"
+          }
+        ],
+        "MetricName": "EstimatedCharges",
+        "Namespace": "AWS/Billing",
+        "Statistic": "Maximum",
+        "Dimensions": [
+          {
+            "Name": "Currency",
+            "Value": "USD"
+          },
+          {
+            "Name": "LinkedAccount",
+            "Value": {
+              "Ref": "LinkedAccount2"
+            }
+          }
+        ],
+        "Period": 21600,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": {
+          "Ref": "Threshold2"
+        },
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "missing"
+      }
+    },
+    "CloudWatchAlarm3": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmName": "BillingAlarm3",
+        "AlarmDescription": "アカウントCの料金アラーム",
+        "ActionsEnabled": true,
+        "AlarmActions": [
+          {
+            "Ref": "SnsTopicArn"
+          }
+        ],
+        "MetricName": "EstimatedCharges",
+        "Namespace": "AWS/Billing",
+        "Statistic": "Maximum",
+        "Dimensions": [
+          {
+            "Name": "Currency",
+            "Value": "USD"
+          },
+          {
+            "Name": "LinkedAccount",
+            "Value": {
+              "Ref": "LinkedAccount3"
+            }
+          }
+        ],
+        "Period": 21600,
+        "EvaluationPeriods": 1,
+        "DatapointsToAlarm": 1,
+        "Threshold": {
+          "Ref": "Threshold3"
+        },
+        "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+        "TreatMissingData": "missing"
+      }
+    }
+  }
+}

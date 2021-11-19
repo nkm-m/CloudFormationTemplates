@@ -1,0 +1,65 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Create EventsRule to notify Personal Health Dashboard events",
+  "Parameters": {
+    "EmailAddress": {
+      "Description": "Enter your EmailAddress",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "EventsRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Name": "PersonalHealthEventsRule",
+        "Description": "Notify Personal Health Events",
+        "EventPattern": "{\"source\":[\"aws.health\"]}",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Ref": "SNSTopic"
+            },
+            "Id": "Id123"
+          }
+        ],
+        "EventBusName": "default"
+      }
+    },
+    "SNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "DisplayName": "PersonalHealthEventsTopic",
+        "TopicName": "PersonalHealthEventsTopic"
+      }
+    },
+    "SNSTopicPolicy": {
+      "Type": "AWS::SNS::TopicPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Fn::Sub": "{\"Version\":\"2008-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\",\"SNS:Receive\"],\"Resource\":\"${SNSTopic}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}},{\"Sid\":\"AWSEvents_${EventsRule}_Id123\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sns:Publish\",\"Resource\":\"${SNSTopic}\"}]}"
+        },
+        "Topics": [
+          {
+            "Ref": "SNSTopic"
+          }
+        ]
+      }
+    },
+    "SNSSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Properties": {
+        "TopicArn": {
+          "Ref": "SNSTopic"
+        },
+        "Endpoint": {
+          "Ref": "EmailAddress"
+        },
+        "Protocol": "email",
+        "Region": {
+          "Ref": "AWS::Region"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Enable Config",
+  "Resources": {
+    "ConfigConfigurationRecorder": {
+      "Type": "AWS::Config::ConfigurationRecorder",
+      "Properties": {
+        "Name": "default",
+        "RecordingGroup": {
+          "AllSupported": true,
+          "IncludeGlobalResourceTypes": false
+        },
+        "RoleARN": {
+          "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig"
+        }
+      }
+    },
+    "ConfigDeliveryChannel": {
+      "Type": "AWS::Config::DeliveryChannel",
+      "Properties": {
+        "Name": "default",
+        "S3BucketName": "your s3 bucket"
+      }
+    }
+  }
+}
